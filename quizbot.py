@@ -17,31 +17,41 @@ def quiz (url, proxies):
 		get_response = response.json()
 		return get_response
 	else:
-		return 'Server is not responding now and something has broken'
+		print('Server is not responding now and something has broken.')
 
 if __name__ == '__main__':
-	user_category = input('Choose a category of questions.')
-	user_difficulty = input('Choose a dificulty level.')
-	url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
-	data = quiz(url, proxies)
+	user_choice_continue = 'yes'
+	while user_choice_continue == 'yes':
+		user_category = input('Choose a category of questions.')
+		user_difficulty = input('Choose a dificulty level.')
+		url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
+		data = quiz(url, proxies)
+		results = data.get('results')
 
-	results = data.get('results')
-
-	for question_answer_info in results:
-		print(question_answer_info['question'])
-		answers = question_answer_info['incorrect_answers']
-		correct_answer = question_answer_info['correct_answer']
-		answers.append(correct_answer)
-		#a = answers.copy()
-		print(answers)
-		user_answer = input('Write a right answer.')
-		if user_answer == correct_answer:
-			print('Yo, bro! It is correct answer.')
-		else:
-			print("""Of course, no.
+		for question_answer_info in results:
+			print(question_answer_info['question'])
+			answers = question_answer_info['incorrect_answers']
+			correct_answer = question_answer_info['correct_answer']
+			answers.append(correct_answer)
+			print(answers)
+			user_answer = input('Write a right answer.')
+			if user_answer == correct_answer:
+				print('Yo! It is correct answer.')
+			else:
+				print("""Nope. Try again.
+""" + str(answers))
+				user_answer = input('Write a right answer.')
+				if user_answer == correct_answer:
+					print('Yo, bro! It is correct answer.')
+				else:
+					print("""No, no, no.
 Correct answer is """ + correct_answer +'.')
+		user_choice_continue = input('Well done! Bro, would you want to continue?')
+	else:
+		print('Okey and Buy Buy. I will be miss you.')
 
 
 
 	
+
 	
