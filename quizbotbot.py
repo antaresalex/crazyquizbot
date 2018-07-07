@@ -51,20 +51,14 @@ def quiz_questions_answers(results):
 Correct answer is """ + correct_answer +'.')
 	user_choice_continue = input('Well done! Bro, would you want to continue?')
 	return user_choice_continue
-
-def user_choice_continue(proxies, results, user_choice_continue):
-	while user_choice_continue == 'yes':
-			category_range = user_questions_url()
-			quiz_range = quiz(category_range, proxies)
-			continue_answers = quiz_questions_answers(results)
-			return continue_answers
-	else:
-		print('Okey and Buy. I will be miss you.')
 	
 if __name__ == '__main__':
 	PROXY = proxy_login_data()
-	user_questions_api = user_questions_url()
-	result_quiz = quiz(user_questions_api, PROXY)
-	answers_questions = quiz_questions_answers(result_quiz)
-	continue_choice = user_choice_continue(PROXY, result_quiz, answers_questions)
+	answers_questions = 'yes'
+	while answers_questions == 'yes':
+		user_questions_api = user_questions_url()
+		result_quiz = quiz(user_questions_api, PROXY)
+		answers_questions = quiz_questions_answers(result_quiz)
+	else:
+		print('Okey and Buy. I will be miss you.')
 
