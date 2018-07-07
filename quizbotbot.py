@@ -5,11 +5,7 @@ import requests
 
 def proxy_login_data():
 	with open('proxy_login.json', 'r') as f_proxy_login:
-		proxy_login = f_proxy_login.read()
-	proxies = {
-		'http': str(proxy_login),
-		'https': str(proxy_login)
-		}
+		proxies = json.load(f_proxy_login)
 	return proxies
 
 def user_questions_url():
@@ -18,37 +14,35 @@ def user_questions_url():
 	url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
 	return url
 
-def quiz(url, proxies):
-	data = requests.get(url, proxies=proxies)
+def quiz(url):
+	data = requests.get(url)
 	if data.status_code == 200:
 		data = data.json()
 		if data.get('response_code') == 0:
 			results = data.get('results')
 			return results
 		else:
-			print('Something is wrong. Try again.')
+			return 'Something is wrong.'
 	else:
-		print('Server is not responding now and something has broken.')
+		return 'Server is not responding now and something has broken.'
 
 def quiz_questions_answers(results):
 	for question_answer_info in results:
-		print(question_answer_info['question'])
+		return question_answer_info['question']
 		answers = question_answer_info['incorrect_answers']
 		correct_answer = question_answer_info['correct_answer']
 		answers.append(correct_answer)
-		print(answers)
+		return answers
 		user_answer = input('Write a right answer.')
 		if user_answer == correct_answer:
-			print('Yo! It is correct answer.')
+			return 'Yo! It is correct answer.'
 		else:
-			print("""Nope. Try again.
-""" + str(answers))
+			return "Nope. Try again.\n" + str(answers)
 			user_answer = input('Write a right answer.')
 			if user_answer == correct_answer:
-				print('Great! This is correct.')
+				return 'Great! This is correct.'
 			else:						
-				print("""No, no, no.
-Correct answer is """ + correct_answer +'.')
+				return "No, no, no.\nCorrect answer is " + correct_answer +'.'
 	user_choice_continue = input('Well done! Bro, would you want to continue?')
 	return user_choice_continue
 	
