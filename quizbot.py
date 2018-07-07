@@ -11,7 +11,7 @@ proxies = {
 	'https': str(proxy_login)
 	}
 
-def quiz (url, proxies):
+def quiz(url, proxies):
 	response = requests.get(url, proxies=proxies)
 	if response.status_code == 200:
 		get_response = response.json()
