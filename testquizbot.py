@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import telebot
 import json
+from telebot import types
 
 import logging
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
@@ -14,7 +15,7 @@ def get_token():
 		return bot_token
 bot = telebot.TeleBot(get_token())
 
-# Приветствие
+#greeting
 @bot.message_handler(commands=['start'])
 def start(message):
     sent = bot.send_message(message.chat.id, 'Hello. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nWhat is your name? ')
@@ -28,24 +29,24 @@ def choose_level(message):
     what_level = bot.send_message(message.chat.id, 'Okey, choose a dificulty level.')
     #bot.register_next_step_handler()
 
-def user_url():
-	user_category = choose_category()
-	user_difficulty = choose_level()
-	url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
-	print(url)
+#google
+@bot.message_handler(commands=['google'])
+def default_test(message):
+    keyboard = types.InlineKeyboardMarkup()
+    url_button = types.InlineKeyboardButton(text="Googling", url="https://www.google.com/")
+    keyboard.add(url_button)
+    bot.send_message(message.chat.id, "Press the button and find more info.", reply_markup=keyboard)
 
+#echo-bot
+@bot.message_handler(content_types=["text"])
+def repeat_all_messages(message):
+    bot.send_message(message.chat.id, message.text)
+
+# def user_url():
+# 	user_category = choose_category()
+# 	user_difficulty = choose_level()
+# 	url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
+# 	print(url)
  
-bot.polling()
-
-# def start_bot():
-#     mybot = Updater(get_token(), request_kwargs=proxy_login_data() )
-#     dp = mybot.dispatcher
-#     dp.add_handler(CommandHandler('start', greet_user))
-#     dp.add_handler(CommandHandler('go', choose_category_level))
-#     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
-
-#     mybot.start_polling()
-#     mybot.idle()
-
-# if __name__ == '__main__':
-#     start_bot()
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
