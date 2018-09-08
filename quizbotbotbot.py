@@ -17,11 +17,19 @@ def greet_user(bot, update):
     print(hello)
     update.message.reply_text(hello)
 
-
-def choose_category_level(bot, update):
+def choose_category(bot, update):
 	what_category = "Choose a category of questions."
 	print(what_category)
 	update.message.reply_text(what_category)
+    user_category = update.message.reply_text(what_category)
+    return user_category
+
+def choose_level(bot, update):
+    what_level = "Choose a dificulty level."
+    print(what_level)
+    update.message.reply_text(what_level)
+    user_level = update.message.reply_text(what_level)
+    return user_level
 
 def talk_to_me(bot, update):
     user_text = update.message.text 
