@@ -10,7 +10,7 @@ def proxy_login_data():
 		'http': str(proxy_login),
 		'https': str(proxy_login)
 		}
-	return proxies
+		return proxies
 
 def user_questions_url():
 	user_category = input('Choose a category of questions.')
@@ -26,9 +26,9 @@ def quiz(url):
 			results = data.get('results')
 			return results
 		else:
-			return('Something is wrong. Try again.')
+			return 'Something is wrong. Try again.'
 	else:
-		return('Server is not responding now and something has broken.')
+		return 'Server is not responding now and something has broken.'
 
 def quiz_questions_answers(results):
 	for question_answer_info in results:
@@ -60,5 +60,5 @@ if __name__ == '__main__':
 		result_quiz = quiz(user_questions_api)
 		answers_questions = quiz_questions_answers(result_quiz)
 	else:
-		return('Okey and Buy. I will be miss you.')
+		return 'Okey and Buy. I will be miss you.'
 

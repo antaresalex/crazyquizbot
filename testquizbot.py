@@ -28,7 +28,7 @@ def choose_category(message):
 def choose_level(message):
     what_level = bot.send_message(message.chat.id, 'Okey, choose a dificulty level.')
     #bot.register_next_step_handler()
-
+    
 #google
 @bot.message_handler(commands=['google'])
 def default_test(message):
