@@ -1,0 +1,5 @@
+{
+	"bot_token": "614399624:AAE76eN7y17XEd2O0nDzPkbFiwJ8Uy3v0XI",
+	"bot_proxy": {"proxy_url": "socks5://79.143.179.221:1085", 
+	"urllib3_proxy_kwargs": {"username": "proxuser", "password": "dBQotjRLJXmxcbZq"}}
+}

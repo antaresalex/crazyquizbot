@@ -1,20 +1,31 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 import logging
+import json
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log'
                     )
 
 def get_token():
-	with open('bot_token.json', 'r') as f_bot_token:
-		bot_token = f_bot_token.read()
-		return bot_token
+  with open('bot_settings.json', 'r') as f_bot_token:
+      bot_token = json.loads(f_bot_token.read())["bot_token"]
+      return bot_token
 
 def proxy_login_data():
-    with open('proxy_login.json', 'r') as f_proxy_login:
-        proxy_login = eval(f_proxy_login.read())
+    with open('bot_settings.json', 'r') as f_proxy_login:
+        proxy_login = json.loads(f_proxy_login.read())["bot_proxy"]
         return proxy_login
+
+# def get_token():
+# 	with open('bot_token.json', 'r') as f_bot_token:
+# 		bot_token = f_bot_token.read()
+# 		return bot_token
+
+# def proxy_login_data():
+#     with open('proxy_login.json', 'r') as f_proxy_login:
+#         proxy_login = eval(f_proxy_login.read())
+#         return proxy_login
 
 #https://github.com/python-telegram-bot/python-telegram-bot/blob/master/examples/conversationbot.py
 
