@@ -1,7 +1,8 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-
-import logging
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 import json
+import logging
+
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log'
@@ -30,9 +31,31 @@ def proxy_login_data():
 #https://github.com/python-telegram-bot/python-telegram-bot/blob/master/examples/conversationbot.py
 
 def greet_user(bot, update, user_data):
-    hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nChoose a category of questions.'.format(update.message.chat.first_name)
+    hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nStart a Quiz game - /play \nStart the Quiz again - /restart \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
     print(hello)
     update.message.reply_text(hello)
+    user_data['user_name'] = update.message.chat.first_name
+    print(user_data['user_name'])
+ 
+def choose_category(bot, update, user_data):
+    keyboard = [[InlineKeyboardButton("General Knowledge", callback_data='9')],
+        [InlineKeyboardButton("Entertaiment: Books", callback_data='10')],
+        [InlineKeyboardButton("Entertaiment: Films", callback_data='11')],
+        [InlineKeyboardButton("Entertaiment: Music", callback_data='12')],
+        [InlineKeyboardButton("Science: Computers", callback_data='18')],
+        [InlineKeyboardButton("Science & Nature", callback_data='17')],
+        [InlineKeyboardButton("Science: Mathematics", callback_data='19')],
+        [InlineKeyboardButton("History", callback_data='23')],             
+        [InlineKeyboardButton("Sports", callback_data='21')],                
+        [InlineKeyboardButton("Art", callback_data='25')],
+        [InlineKeyboardButton("Geography", callback_data='22')],
+        [InlineKeyboardButton("Animals", callback_data='27')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text('\nChoose a category of questions:', reply_markup=reply_markup)
+    # user_data['user_category'] = callback_data
+    # print(user_data['user_category'])
+    #https://www.programcreek.com/python/example/106608/telegram.ext.CallbackQueryHandler
 
 # def choose_category(bot, update, user_data):
 #     bot.send_messege(update.messege.chat_id, "Choose a category of questions.")
@@ -53,14 +76,14 @@ def talk_to_me(bot, update, user_data):
     user_text = update.message.text 
     #print(user_text)
     update.message.reply_text(user_text)
-    user_data['text'] = update.message.text
-    print(user_data['text'])
+    #user_data['text'] = update.message.text
+    
 
 def start_bot():
     mybot = Updater(get_token(), request_kwargs=proxy_login_data() )
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
-    #dp.add_handler(CommandHandler('go', choose_category, pass_user_data=True))
+    dp.add_handler(CommandHandler('play', choose_category, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
     mybot.start_polling()
