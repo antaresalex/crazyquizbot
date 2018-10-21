@@ -33,10 +33,13 @@ def proxy_login_data():
 
 def greet_user(bot, update, user_data):
     hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nStart a Quiz game - /play \nStart the Quiz again - /restart \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
-    print(hello)
     update.message.reply_text(hello)
     user_data['user_name'] = update.message.chat.first_name
-    print(user_data['user_name'])
+
+def quiz_restart(bot, update, user_data):
+    restart = 'Dear {}. Because I am Super Crazy Quiz Bot, I know many more fun questions. \nIf you want to start a Quiz game again - /play \nIf you want to stop - /stop \nPlease, give me the command '.format(update.message.chat.first_name)
+    update.message.reply_text(restart)
+    return 'category'
 
 def quiz_choose_category(bot, update, user_data):
     keyboard = [['General Knowledge', 'Books', 'Films', 'Music'],
@@ -63,26 +66,24 @@ def quiz_choose_difficulty(bot, update, user_data):
     update.message.reply_text('\nChoose a difficulty level:', reply_markup=reply_markup, one_time_keyboard=True)
     return 'create_url'
 
-def quiz_create_url(bot, update, user_data):
-    user_difficulty = update.message.text
-    user_data['user_difficulty'] = user_difficulty
-    user_category = user_data['user_category']
-    url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
-    user_data['user_url'] = url
-    return get_quiz
-
-def get_quiz(bot, update, user_data):
-    url = user_data['user_url']
-    data = requests.get(url)
-    if data.status_code == 200:
-        data = data.json()
-        if data.get('response_code') == 0:
-            results = data.get('results')
-            return results
-        else:
-            return 'Something is wrong. Try again.'
-    else:
-        return 'Server is not responding now and something has broken.'
+# def quiz_create_url(bot, update, user_data):
+#     user_difficulty = update.message.text
+#     user_data['user_difficulty'] = user_difficulty
+#     user_category = user_data['user_category']
+#     url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
+#     user_data['user_url'] = url
+#     data = requests.get(url)
+#     if data.status_code == 200:
+#         data = data.json()
+#         if data.get('response_code') == 0:
+#             results = data.get('results')
+#             return quiz_play
+#         else:
+#             print('Something is wrong. Check Postman')
+#             return quiz_restart
+#     else:
+#         print('Server is not responding now. Check Postman')
+#         return ConversationHandler.END
 
 # def quiz_questions_answers(results):
 #     for question_answer_info in results:
@@ -144,25 +145,30 @@ def open_google(bot, update, user_data):
 
 def talk_to_me(bot, update, user_data):
     user_text = update.message.text 
-    #print(user_text)
     update.message.reply_text(user_text)
-    #user_data['text'] = update.message.text
+    return ConversationHandler.END
+
+def dont_know(bot, update, user_data):
+    user_text = update.message.text 
+    update.message.reply_text('When you write' + user_text + 'What do you mean?\nI dont understand you, sorry')
 
 def start_bot():
     mybot = Updater(get_token(), request_kwargs=proxy_login_data() )
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
-    dp.add_handler(CommandHandler('play', quiz_choose_category, pass_user_data=True))
     dp.add_handler(CommandHandler('google', open_google, pass_user_data=True))
     dp.add_handler(RegexHandler('^(google|info|search)$', open_google, pass_user_data=True))
-    dp.add_handler(RegexHandler('^(General Knowledge|Books|Films|Music|Computers|Science & Nature|Mathematics|History|Sports|Art|Geography|Animals)$', create_url, pass_user_data=True))
     quiz = ConversationHandler(
         entry_points=[CommandHandler('play', quiz_choose_category, pass_user_data=True)],
         states={
+        'category': [CommandHandler('play', quiz_choose_category, pass_user_data=True)],
         'difficulty': [RegexHandler('^(General Knowledge|Books|Films|Music|Computers|Science & Nature|Mathematics|History|Sports|Art|Geography|Animals)$', quiz_choose_difficulty, pass_user_data=True)],
-        'create_url': [RegexHandler('^(Easy|Medium|Hard)$', quiz_create_url, pass_user_data=True)]
-            }
-        fallbacks=[]
+        'create_url': [RegexHandler('^(Easy|Medium|Hard)$', talk_to_me, pass_user_data=True)],
+        'quiz_restart': [CommandHandler('restart', quiz_restart, pass_user_data=True), 
+                        RegexHandler('^(restat|again)$',quiz_restart, pass_user_data=True)],
+        'quiz_play': [CommandHandler('play', quiz_choose_category, pass_user_data=True)]
+            },
+        fallbacks=[MessageHandler(Filters.text, dont_know, pass_user_data=True)]
         )
     dp.add_handler(quiz)
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
