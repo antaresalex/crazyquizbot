@@ -49,14 +49,6 @@ def quiz_choose_category(bot, update, user_data):
     update.message.reply_text('\nChoose a category of questions:', reply_markup=reply_markup, one_time_keyboard=True)
     return 'difficulty'
 
-# def quiz_get_category(bot, update, user_data):
-#     user_category = update.message.text
-#     print(user_category)
-#     dict_category = {'General Knowledge': '9', 'Books': '10', 'Films': '11', 'Music': '12', 'Computers': '18', 'Science & Nature': '17', 'Mathematics': '19', 'History': '23', 'Sports': '21', 'Art': '25', 'Geography': '22', 'Animals': '27'} 
-#     user_data['user_category'] = dict_category.get(user_category)
-#     print(user_data['user_category'])
-#     return 'difficulty'
-
 def quiz_choose_difficulty(bot, update, user_data):
     user_category = update.message.text
     dict_category = {'General Knowledge': '9', 'Books': '10', 'Films': '11', 'Music': '12', 'Computers': '18', 'Science & Nature': '17', 'Mathematics': '19', 'History': '23', 'Sports': '21', 'Art': '25', 'Geography': '22', 'Animals': '27'} 
@@ -66,75 +58,59 @@ def quiz_choose_difficulty(bot, update, user_data):
     update.message.reply_text('\nChoose a difficulty level:', reply_markup=reply_markup, one_time_keyboard=True)
     return 'create_url'
 
-# def quiz_create_url(bot, update, user_data):
-#     user_difficulty = update.message.text
-#     user_data['user_difficulty'] = user_difficulty
-#     user_category = user_data['user_category']
-#     url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
-#     user_data['user_url'] = url
-#     data = requests.get(url)
-#     if data.status_code == 200:
-#         data = data.json()
-#         if data.get('response_code') == 0:
-#             results = data.get('results')
-#             return quiz_play
-#         else:
-#             print('Something is wrong. Check Postman')
-#             return quiz_restart
-#     else:
-#         print('Server is not responding now. Check Postman')
-#         return ConversationHandler.END
+def quiz_url(bot, update, user_data):
+    user_difficulty = update.message.text
+    user_data['user_difficulty'] = user_difficulty
+    user_category = user_data['user_category']
+    url = 'https://opentdb.com/api.php?amount=5&category=%s&difficulty=%s' % (user_category, user_difficulty)
+    user_data['user_url'] = url
+    data = requests.get(url)
+    if data.status_code == 200:
+        data = data.json()
+        if data.get('response_code') == 0:
+            results = data.get('results')
+            user_data['user_results'] = results
+            return 'quiz_questions'
+        else:
+            print('Something is wrong. Check Postman')
+            return 'quiz_restart'
+    else:
+        print('Server is not responding now. Check Postman')
+        return 'quiz_restart'
+        #return ConversationHandler.END
 
-# def quiz_questions_answers(results):
-#     for question_answer_info in results:
-#         return(question_answer_info['question'])
-#         answers = question_answer_info['incorrect_answers']
-#         correct_answer = question_answer_info['correct_answer']
-#         answers.append(correct_answer)
-#         return(answers)
-#         user_answer = input('Write a right answer.')
-#         if user_answer == correct_answer:
-#             return('Yo! It is correct answer.')
-#         else:
-#             return("""Nope. Try again.
-# """ + str(answers))
-#             user_answer = input('Write a right answer.')
-#             if user_answer == correct_answer:
-#                 return('Great! This is correct.')
-#             else:                       
-#                 return("""No, no, no.
-# Correct answer is """ + correct_answer +'.')
-#     user_choice_continue = input('Well done! Bro, would you want to continue?')
-#     return user_choice_continue
+def quiz_questions(bot, update, user_data):
+    results = user_data['user_results']
+    for question_answer_info in results:
+        return(question_answer_info['question'])
+        answers = question_answer_info['incorrect_answers']
+        correct_answer = question_answer_info['correct_answer']
+        answers.append(correct_answer)
+        return(answers)
+        user_answer = input('Write a right answer.')
+        if user_answer == correct_answer:
+            return('Yo! It is correct answer.')
+        else:
+            return("""Nope. Try again.
+""" + str(answers))
+            user_answer = input('Write a right answer.')
+            if user_answer == correct_answer:
+                return('Great! This is correct.')
+            else:                       
+                return("""No, no, no.
+Correct answer is """ + correct_answer +'.')
+    user_choice_continue = input('Well done! Bro, would you want to continue?')
+    return user_choice_continue
     
-# if __name__ == '__main__':
-#     #PROXY = proxy_login_data()
-#     answers_questions = 'yes'
-#     while answers_questions == 'yes':
-#         user_questions_api = user_questions_url()
-#         result_quiz = quiz(user_questions_api)
-#         answers_questions = quiz_questions_answers(result_quiz)
-#     else:
-#         return 'Okey and Buy. I will be miss you.'
+if __name__ == '__main__':
+    answers_questions = 'yes'
+    while answers_questions == 'yes':
+        user_questions_api = user_questions_url()
+        result_quiz = quiz(user_questions_api)
+        answers_questions = quiz_questions_answers(result_quiz)
+    else:
+        return 'Okey and Buy. I will be miss you.'
 
-# def choose_category(bot, update, user_data):
-#     keyboard = [[InlineKeyboardButton("General Knowledge", callback_data='9')],
-#         [InlineKeyboardButton("Entertaiment: Books", callback_data='10')],
-#         [InlineKeyboardButton("Entertaiment: Films", callback_data='11')],
-#         [InlineKeyboardButton("Entertaiment: Music", callback_data='12')],
-#         [InlineKeyboardButton("Science: Computers", callback_data='18')],
-#         [InlineKeyboardButton("Science & Nature", callback_data='17')],
-#         [InlineKeyboardButton("Science: Mathematics", callback_data='19')],
-#         [InlineKeyboardButton("History", callback_data='23')],             
-#         [InlineKeyboardButton("Sports", callback_data='21')],                
-#         [InlineKeyboardButton("Art", callback_data='25')],
-#         [InlineKeyboardButton("Geography", callback_data='22')],
-#         [InlineKeyboardButton("Animals", callback_data='27')]
-#     ]
-#     reply_markup = InlineKeyboardMarkup(keyboard)
-#     update.message.reply_text('\nChoose a category of questions:', reply_markup=reply_markup)
-    # user_data['user_category'] = callback_data
-    # print(user_data['user_category'])
     #https://www.programcreek.com/python/example/106608/telegram.ext.CallbackQueryHandler
 
 def open_google(bot, update, user_data):
@@ -163,10 +139,9 @@ def start_bot():
         states={
         'category': [CommandHandler('play', quiz_choose_category, pass_user_data=True)],
         'difficulty': [RegexHandler('^(General Knowledge|Books|Films|Music|Computers|Science & Nature|Mathematics|History|Sports|Art|Geography|Animals)$', quiz_choose_difficulty, pass_user_data=True)],
-        'create_url': [RegexHandler('^(Easy|Medium|Hard)$', talk_to_me, pass_user_data=True)],
+        'create_url': [RegexHandler('^(Easy|Medium|Hard)$', quiz_url, pass_user_data=True)],
         'quiz_restart': [CommandHandler('restart', quiz_restart, pass_user_data=True), 
-                        RegexHandler('^(restat|again)$',quiz_restart, pass_user_data=True)],
-        'quiz_play': [CommandHandler('play', quiz_choose_category, pass_user_data=True)]
+                        RegexHandler('^(restat|again)$',quiz_restart, pass_user_data=True)]
             },
         fallbacks=[MessageHandler(Filters.text, dont_know, pass_user_data=True)]
         )
