@@ -4,4 +4,5 @@ bot_token.json
 bot.log
 __pycache__/
 requirements.txt
-bot_settings.py
+bot_settings.json
+
