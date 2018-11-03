@@ -4,6 +4,7 @@ import random
 import json
 import logging
 import requests
+import html
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -19,18 +20,6 @@ def proxy_login_data():
     with open('bot_settings.json', 'r') as f_proxy_login:
         proxy_login = json.loads(f_proxy_login.read())["bot_proxy"]
         return proxy_login
-
-# def get_token():
-# 	with open('bot_token.json', 'r') as f_bot_token:
-# 		bot_token = f_bot_token.read()
-# 		return bot_token
-
-# def proxy_login_data():
-#     with open('proxy_login.json', 'r') as f_proxy_login:
-#         proxy_login = eval(f_proxy_login.read())
-#         return proxy_login
-
-#https://github.com/python-telegram-bot/python-telegram-bot/blob/master/examples/conversationbot.py
 
 def greet_user(bot, update, user_data):
     hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nQuiz commands and greeting - /start \nPlay the Quiz game - /play \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
@@ -77,24 +66,27 @@ def quiz_url(bot, update, user_data):
         else:
             print('Something is wrong. Check Postman')
             print(url)
-            return 'quiz_restart'
+            return quiz_restart(bot, update, user_data)
     else:
         print('Server is not responding now. Check Postman')
-        return 'quiz_restart'
+        return quiz_restart(bot, update, user_data)
 
 def quiz_questions(bot, update, user_data):
     results = user_data['user_results'] 
     user_question_number = user_data['user_question_number']
     question_answer_info = results[user_question_number]
     question_text = question_answer_info['question']
+    question_text = html.unescape(question_text)
     user_data['user_question'] = question_text
     answers = question_answer_info['incorrect_answers']
     correct_answer = question_answer_info['correct_answer']
+    correct_answer = html.unescape(correct_answer)
     user_data['user_correct_answer'] = correct_answer
     answers.append(correct_answer)
     random.shuffle(answers)
     keyboard = []
     for answer in answers:
+        answer = html.unescape(answer)
         keyboard.append([answer])
     reply_markup = ReplyKeyboardMarkup(keyboard)
     update.message.reply_text(question_text + '\nChoose a right answer:', reply_markup=reply_markup)
@@ -124,17 +116,6 @@ def quiz_stop(bot, update, user_data):
     reply_markup = ReplyKeyboardRemove()
     update.message.reply_text('Okey and Buy. I will be miss you.', reply_markup=reply_markup)
     return ConversationHandler.END
-    
-# if __name__ == '__main__':
-#     answers_questions = 'yes'
-#     while answers_questions == 'yes':
-#         user_questions_api = user_questions_url()
-#         result_quiz = quiz(user_questions_api)
-#         answers_questions = quiz_questions_answers(result_quiz)
-#     else:
-#         return 'Okey and Buy. I will be miss you.'
-
-    #https://www.programcreek.com/python/example/106608/telegram.ext.CallbackQueryHandler
 
 def open_google(bot, update, user_data):
     keyboard = [[InlineKeyboardButton(text="Googling", url='https://www.google.com/')]
@@ -166,11 +147,12 @@ def start_bot():
             'quiz_answers': [MessageHandler(Filters.text, quiz_answers, pass_user_data=True)],
             'quiz_stop': [
                 CommandHandler('stop', quiz_stop, pass_user_data=True), 
-                RegexHandler('^(Stop|stop|skip|out|end)$',quiz_stop, pass_user_data=True)
+                RegexHandler('^(Stop)$', quiz_stop, pass_user_data=True)
             ],
         },
         fallbacks=[
             CommandHandler('stop', quiz_stop, pass_user_data=True),
+            RegexHandler('^(Stop)$', quiz_stop, pass_user_data=True),
             CommandHandler('google', open_google, pass_user_data=True),
             MessageHandler(Filters.text, dont_know, pass_user_data=True)
             ]
@@ -183,12 +165,6 @@ def start_bot():
 
     mybot.start_polling()
     mybot.idle()
-
-
-
-    #1) Написать схему переходов из состаяния в состояние в боте. 
-    #2) Изменить команду рестарт (добавить ответ на вопрос Продожить да или нет) 
-    #3) через формат исправить текс вопросов и ответов (форматирование)
 
 if __name__ == '__main__':
     start_bot()
