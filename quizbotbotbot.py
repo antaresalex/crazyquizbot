@@ -33,14 +33,14 @@ def proxy_login_data():
 #https://github.com/python-telegram-bot/python-telegram-bot/blob/master/examples/conversationbot.py
 
 def greet_user(bot, update, user_data):
-    hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nStart a Quiz game - /play \nStart the Quiz again - /restart \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
+    hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nQuiz commands and greeting - /start \nPlay the Quiz game - /play \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
     update.message.reply_text(hello)
     user_data['user_name'] = update.message.chat.first_name
 
 def quiz_restart(bot, update, user_data):
-    restart = 'Dear {}. Because I am Super Crazy Quiz Bot, I know many more fun questions. \nIf you want to start a Quiz game again - /play \nIf you want to stop - /stop \nPlease, give me the command '.format(update.message.chat.first_name)
+    restart = 'Dear {}. I am glad to continue this game with you, I know many more fun questions.'.format(update.message.chat.first_name)
     update.message.reply_text(restart)
-    return 'category'
+    return quiz_choose_category(bot, update, user_data)
 
 def quiz_choose_category(bot, update, user_data):
     keyboard = [['General Knowledge', 'Books', 'Films', 'Music'],
@@ -81,7 +81,6 @@ def quiz_url(bot, update, user_data):
     else:
         print('Server is not responding now. Check Postman')
         return 'quiz_restart'
-        #return ConversationHandler.END
 
 def quiz_questions(bot, update, user_data):
     results = user_data['user_results'] 
@@ -111,25 +110,20 @@ def quiz_answers(bot, update, user_data):
             user_data['user_question_number'] = user_question_number + 1 
             return quiz_questions(bot, update, user_data)
         else:
-            update.message.reply_text('Well done! Quiz is over. Bro, would you want to continue?')
-            #клавиатура с да или нет и отлавливаем ответ в рестарте
-            return quiz_restart(bot, update, user_data)
+            keyboard = [['Play again'],
+            ['Stop']]
+            reply_markup = ReplyKeyboardMarkup(keyboard)
+            update.message.reply_text('Well done! Quiz is over. Bro, would you want to continue?', reply_markup=reply_markup, one_time_keyboard=True)
+            return 'quiz_restart'
     else:
         question_text = user_data['user_question']
         update.message.reply_text('No! It is incorrect answer. Try again.\n' + question_text)
         return 'quiz_answers'
 
-#     else:
-#         return("""Nope. Try again.
-# """ + str(answers))
-#         user_answer = input('Write a right answer.')
-#         if user_answer == correct_answer:
-#             return('Great! This is correct.')
-#         else:                       
-#             return("""No, no, no.
-# Correct answer is """ + correct_answer +'.')
-#     user_choice_continue = input('Well done! Bro, would you want to continue?')
-#     return user_choice_continue
+def quiz_stop(bot, update, user_data):
+    reply_markup = ReplyKeyboardRemove()
+    update.message.reply_text('Okey and Buy. I will be miss you.', reply_markup=reply_markup)
+    return ConversationHandler.END
     
 # if __name__ == '__main__':
 #     answers_questions = 'yes'
@@ -151,8 +145,7 @@ def open_google(bot, update, user_data):
 def talk_to_me(bot, update, user_data):
     user_text = update.message.text 
     update.message.reply_text(user_text)
-    return ConversationHandler.END
-
+    
 def dont_know(bot, update, user_data):
     user_text = update.message.text 
     update.message.reply_text('When you write: ' + user_text + '. What do you mean?\nI dont understand you, sorry')
@@ -168,22 +161,34 @@ def start_bot():
             'create_url': [RegexHandler('^(Easy|Medium|Hard)$', quiz_url, pass_user_data=True)],
             'quiz_restart': [
                 CommandHandler('restart', quiz_restart, pass_user_data=True), 
-                RegexHandler('^(restat|again)$',quiz_restart, pass_user_data=True)
+                RegexHandler('^(Play again|restart|again)$',quiz_restart, pass_user_data=True)
             ],
-            'quiz_answers': [MessageHandler(Filters.text, quiz_answers, pass_user_data=True)]
+            'quiz_answers': [MessageHandler(Filters.text, quiz_answers, pass_user_data=True)],
+            'quiz_stop': [
+                CommandHandler('stop', quiz_stop, pass_user_data=True), 
+                RegexHandler('^(Stop|stop|skip|out|end)$',quiz_stop, pass_user_data=True)
+            ],
         },
-        #fallbacks=[]
-        fallbacks=[MessageHandler(Filters.text, dont_know, pass_user_data=True)]
+        fallbacks=[
+            CommandHandler('stop', quiz_stop, pass_user_data=True),
+            CommandHandler('google', open_google, pass_user_data=True),
+            MessageHandler(Filters.text, dont_know, pass_user_data=True)
+            ]
         )
     dp.add_handler(quiz)
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(CommandHandler('google', open_google, pass_user_data=True))
     dp.add_handler(RegexHandler('^(google|info|search)$', open_google, pass_user_data=True))
-
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
 
     mybot.start_polling()
     mybot.idle()
+
+
+
+    #1) Написать схему переходов из состаяния в состояние в боте. 
+    #2) Изменить команду рестарт (добавить ответ на вопрос Продожить да или нет) 
+    #3) через формат исправить текс вопросов и ответов (форматирование)
 
 if __name__ == '__main__':
     start_bot()
