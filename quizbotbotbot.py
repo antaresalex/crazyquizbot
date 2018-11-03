@@ -114,7 +114,7 @@ def quiz_answers(bot, update, user_data):
 
 def quiz_stop(bot, update, user_data):
     reply_markup = ReplyKeyboardRemove()
-    update.message.reply_text('Okey and Buy. I will be miss you.', reply_markup=reply_markup)
+    update.message.reply_text('Okey and Buy. I will be miss you. \nIf you want to come back in the game: \nQuiz commands and greeting - /start \nPlay the Quiz game - /play ', reply_markup=reply_markup)
     return ConversationHandler.END
 
 def open_google(bot, update, user_data):
