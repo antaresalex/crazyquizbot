@@ -1,10 +1,13 @@
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler, ConversationHandler
 import random
+from random import choice
+from emoji import emojize
 import json
 import logging
 import requests
 import html
+import emo
 
 logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -22,7 +25,8 @@ def proxy_login_data():
         return proxy_login
 
 def greet_user(bot, update, user_data):
-    hello = 'Hello, {}. I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nQuiz commands and greeting - /start \nPlay the Quiz game - /play \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name)
+    smile = emojize(choice(emo.USER_EMOJI), use_aliases=True)
+    hello = 'Hello, {}. {} I am Crazy Quiz Bot. \nI know many fun questions from all over the world. \nLet`s do it! \nQuiz commands and greeting - /start \nPlay the Quiz game - /play \nStop this game - /stop \nSearch info in Google - /google '.format(update.message.chat.first_name, smile)
     update.message.reply_text(hello)
     user_data['user_name'] = update.message.chat.first_name
 
@@ -96,7 +100,9 @@ def quiz_answers(bot, update, user_data):
     user_answer = update.message.text
     correct_answer = user_data['user_correct_answer']
     if user_answer == correct_answer:
-        update.message.reply_text('Yo! It is correct answer.')
+        smile = emojize(choice(emo.USER_EMOJI), use_aliases=True)
+        text = 'Yo! It is correct answer. {}'.format(smile)
+        update.message.reply_text(text)
         user_question_number = user_data['user_question_number']
         if user_question_number != 4:
             user_data['user_question_number'] = user_question_number + 1 
@@ -114,7 +120,9 @@ def quiz_answers(bot, update, user_data):
 
 def quiz_stop(bot, update, user_data):
     reply_markup = ReplyKeyboardRemove()
-    update.message.reply_text('Okey and Buy. I will be miss you. \nIf you want to come back in the game: \nQuiz commands and greeting - /start \nPlay the Quiz game - /play ', reply_markup=reply_markup)
+    smile = emojize(choice(emo.USER_EMOJI), use_aliases=True)
+    text = 'Okey and Buy. {} I will be miss you. \nIf you want to come back in the game: \nQuiz commands and greeting - /start \nPlay the Quiz game - /play'.format(smile)
+    update.message.reply_text(text, reply_markup=reply_markup)
     return ConversationHandler.END
 
 def open_google(bot, update, user_data):

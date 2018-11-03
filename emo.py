@@ -1,0 +1,1 @@
+USER_EMOJI = [':smiley_cat:', ':panda_face:', ':dog:', ':rocket:', ':books:', ':koala:', ':smile:', ':+1:', ':star:', ':fire:', ':yum:', ':innocent:', ':rabbit:', ':frog:', ':honeybee:', ':hamster:', ':green_apple:']
